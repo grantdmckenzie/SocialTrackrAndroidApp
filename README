@@ -1,0 +1,48 @@
+#### READ ME ####
+
+Application: SocialTrackr
+Author: Grant McKenzie
+Platform: Android 2.2
+
+The SocialTrackr application allows you to track your the location of your social interactions and view them through a number of visualizations.
+
+## Location Button ##
+
+Enabling this button will allow SocialTrackr to log your location every 5 minutes.  The application starts an AlarmManager that starts the STService.java Service every 5 minutes.  This service will try to get a GPS fix for approx. 45 seconds before switching to the network provider for a coarser fix.  Once a location is found, the latitude, longitude, timestamp and Accuracy (Fine or Coarse) will be logged in a SharedPreference array variable. 
+
+## Send Data Button ##
+
+Enabling this button will allow SocialTrackr to upload your location data and sms/call logs to the SocialTrackr database.  Upon clicking the "Send Data" toggle button, the STSendData.java Service will be initiated.  This service runs in the back ground and attempts upload location and sms/call information to the server every hour.  In no network access is available, the data will be held for another hour.
+
+## Facebook Button ##
+
+Enabling this button will prompt you for your facebook credentials.  Toggling this button opens a new Facebook.java activity that attempts to load access your Facebook profile.  Once logged in, a application specific token is returned back to the android device and then sent to the Server.  This token is required by the SocialCrawl.php script that accesses your Facebook account every hour to store the latest social interaction data.
+
+## Twitter Button ##
+
+Enabling this button will send you to the STTwitter.java activity and prompt you for your twitter username and upload it to the SocialTrackr database.  Again, once this information is stored in the database, SocialCrawl.php script will access your tweets through the twitter api and store them in the database every hour.
+
+## Call / SMS Buttons ##
+
+Enabling these button will allow SocialTrackr to log the time and location of each SMS or Call you send/receive. A BroadCastReceiver is registered on your android device that listens for incoming SMS messages and incoming/outgoing phone calls.  When these buttons are toggled on, their corresponding boolean variables are set to true.  When a message comes in, the broadcast receiver checks the booleans, if they are true, it logs the timestamp and type of incoming message (sms or call) and stores it in SharedPreferences.  Data is uploaded to the server through the STSendData.java service.
+
+## SocialCrawl.php ##
+
+This is a script that runs on the server as a cron job every hour.  It checks the "user" table for facebook token and twitter username.  It then crawls through your facebook wall and tweets and downloads all data since the script was last run.  It checks the timestamps of the "location" table to determine the location of the social interaction data.  A latitude and longitude are also assigned to the social data (sms, call, facebook, twitter).
+
+## Documentation ##
+
+A simple activity that just lists most of the information above.
+
+## Main Map ##
+
+This is a webview on the android device that hits a html file called "mainmap.html."  MainMap.html dynamically creates a kml file of the most recent location data (path) and social network data (socialdata table) and overlays them on the map.  The reason I chose to do this was so that you could view the tracks (kml) in Google Earth on your desktop as well.  The data is visualized by day.  There are blue arrows allowing the user to pan through different days.
+
+## Social Heat Map ##
+
+This is a webview on the android device that hits a html file called "SocialHeatMap.html."  This map shows a heat map of the 100 recent social interaction points (facebook, twitter, sms, calls). Essentially it clusters (lighter colors) regions that have higher activity and are closer together.
+
+## Location Heat Map ##
+
+This is a webview on the android device that hits a html file called "LocHeatMap.html."  This map shows a heat map of the 100 recent locations you have visted.
+		
